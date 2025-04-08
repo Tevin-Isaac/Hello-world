@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hello World</title>
+    <link rel="icon" href="favicon.ico" />
+    <style>
+      body {
+        padding: 10px 60px;
+        font-family: sans-serif;
+        font-size: 1.5rem;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      form {
+        margin: 20px 0;
+      }
+      button {
+        padding: 8px 16px;
+        background-color: #0a45c9;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      button:hover {
+        background-color: #0834a0;
+      }
+      button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+      #greeting {
+        margin: 10px auto;
+        padding: 10px 60px;
+        border: 1px solid #222;
+        border-radius: 4px;
+        background-color: #f9f9f9;
+      }
+      #greeting:empty {
+        display: none;
+      }
+      input {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-right: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="logo2.svg" alt="DFINITY logo" />
+      <h1>Internet Computer Hello World</h1>
+      <form>
+        <label for="name">Enter your name: &nbsp;</label>
+        <input id="name" placeholder="Type your name here" alt="Name" type="text" />
+        <button type="submit" id="submitButton">Click Me!</button>
+      </form>
+      <section id="greeting" aria-live="polite"></section>
+    </main>
+
+    <script type="module">
+      // Import the backend actor
+      import { backend } from 'declarations/backend';
+      
+      const submitButton = document.getElementById('submitButton');
+      const nameInput = document.getElementById('name');
+      const greetingSection = document.getElementById('greeting');
+      
+      // Add an event listener to the form
+      document.querySelector('form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Disable button to prevent multiple submissions
+        submitButton.setAttribute('disabled', true);
+        
+        try {
+          // Get the name from the input field
+          const name = nameInput.value.toString().trim();
+          
+          if (!name) {
+            greetingSection.innerText = "Please enter a name";
+            return;
+          }
+          
+          // Calling the method "greet" on the backend actor with the name
+          const greeting = await backend.greet(name);
+          
+          // Display the greeting returned by the backend actor
+          greetingSection.innerText = greeting;
+        } catch (error) {
+          console.error("Error calling the backend:", error);
+          greetingSection.innerText = "Something went wrong. Please try again.";
+        } finally {
+          // Re-enable the button
+          submitButton.removeAttribute('disabled');
+        }
+      });
+    </script>
+  </body>
+</html>
